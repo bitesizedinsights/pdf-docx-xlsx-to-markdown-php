@@ -1,0 +1,33 @@
+# Document to Markdown PHP
+
+> PHP client that converts PDF, Word, PowerPoint, Excel, HTML and image documents to Markdown via the Apify Actor "Document to Markdown", returning typed DTOs.
+
+Key facts: package `bitesizedinsights/document-to-markdown`, install with `composer require bitesizedinsights/document-to-markdown`, PHP ^8.3, namespace `DocumentToMarkdown`, entry class `DocumentToMarkdown\Client`, authentication with an Apify API token.
+
+## Docs
+- [README](https://github.com/bitesizedinsights/document-to-markdown-php/blob/master/README.md): usage, pricing and FAQ
+- [Actor](https://apify.com/bite-sized-insights/document-to-markdown): the underlying Apify Actor
+
+## API
+- `Client::__construct(string $apiToken, ?Config $config = null, ?GuzzleHttp\ClientInterface $http = null)`
+- `Client::convert(array $urls, bool $ocr = true, bool $extractTables = true, bool $fastMode = true, int $chunkSize = 0, int $maxPagesPerDocument = 100): ConvertedDocument[]` - one result per URL, in order. `$urls`: 1-100 public http(s) links, 50 MB each. `$chunkSize`: 0 = none, else 100-4000 tokens. `$maxPagesPerDocument`: 1-200.
+- `Config(string $apiToken, string $actorId = 'bite-sized-insights/document-to-markdown', string $baseUrl = 'https://api.apify.com/v2', int $timeout = 600, int $requestTimeout = 90)`
+- DTO `ConvertedDocument`: url: string, status: DocumentStatus, pagesConverted: int, ocrPages: int, truncated: bool, pages: Page[], tables: Table[], chunks: Chunk[], format: ?string, title: ?string, totalPages: ?int, markdown: ?string, errorCode: ?string, error: ?string. Methods: isSuccessful(), isPartial(), isFailed(), getFormat(): ?DocumentFormat, getErrorCode(): ?ErrorCode, getPageText(int $page): ?string, getTableCount(), getChunkCount()
+- DTO `Page`: page: int, text: string, ocr: bool, method: ?string. Method: getMethod(): ?PageMethod
+- DTO `Table`: index: int, page: ?int, markdown: string, rows: list<list<string>>. Methods: getRowCount(), getColumnCount()
+- DTO `Chunk`: index: int, text: string, pages: list<int>, heading: ?string, tokens: int
+- Enums: `DocumentStatus` (success, partial, failed); `DocumentFormat` (pdf, docx, pptx, xlsx, html, image); `PageMethod` (fast, layout, ocr, native); `ErrorCode` (blocked_url, download_failed, too_large, unsupported_format, invalid_document, too_many_pages, conversion_failed, service_unavailable)
+- `RateLimitException` (extends `ApiException`, property `retryAfter`): HTTP 429
+- `ApiException`: failed requests, malformed responses, failed or timed-out runs, unmappable dataset items (message names the item index)
+- A single bad document does not throw; it returns a ConvertedDocument with status failed, errorCode and error.
+
+## Example
+```php
+use DocumentToMarkdown\Client;
+
+$client = new Client(getenv('APIFY_API_TOKEN') ?: 'your_apify_api_token');
+
+[$document] = $client->convert(['https://arxiv.org/pdf/1706.03762'], chunkSize: 512);
+
+echo $document->isFailed() ? $document->error : $document->markdown;
+```
