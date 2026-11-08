@@ -39,7 +39,7 @@ function liveSampleFile(): string
 
     if (! is_file($path) || filesize($path) === 0) {
         $context = stream_context_create([
-            'http' => ['timeout' => 60, 'user_agent' => 'document-to-markdown-php-tests'],
+            'http' => ['timeout' => 60, 'user_agent' => 'pdf-docx-xlsx-to-markdown-php-tests'],
         ]);
         $data = file_get_contents(LIVE_SAMPLE_URL, false, $context);
 

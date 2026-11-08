@@ -11,7 +11,7 @@ Topics (20): document-to-markdown, pdf-to-markdown, docx-to-markdown, pdf-conver
 Commands (not executed):
 
 ```bash
-gh repo edit bitesizedinsights/document-to-markdown-php \
+gh repo edit bitesizedinsights/pdf-docx-xlsx-to-markdown-php \
   --description "Convert PDF, Word, Excel, HTML and scans to Markdown in PHP for LLMs and RAG" \
   --add-topic document-to-markdown --add-topic pdf-to-markdown --add-topic docx-to-markdown \
   --add-topic pdf-converter --add-topic document-conversion --add-topic ocr --add-topic rag \

@@ -1,5 +1,5 @@
 {
-    "name": "bitesizedinsights/document-to-markdown",
+    "name": "bitesizedinsights/pdf-docx-xlsx-to-markdown",
     "description": "Document to Markdown PHP client: convert PDF, Word, Excel, HTML and scans via Apify, typed DTOs.",
     "type": "library",
     "license": "MIT",
@@ -18,10 +18,10 @@
         "apify",
         "api client"
     ],
-    "homepage": "https://github.com/bitesizedinsights/document-to-markdown-php",
+    "homepage": "https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php",
     "support": {
-        "issues": "https://github.com/bitesizedinsights/document-to-markdown-php/issues",
-        "source": "https://github.com/bitesizedinsights/document-to-markdown-php"
+        "issues": "https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php/issues",
+        "source": "https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php"
     },
     "authors": [
         {

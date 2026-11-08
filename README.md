@@ -1,18 +1,18 @@
 # PDF to Markdown in PHP: Convert Word, Excel, PowerPoint, HTML and Scans for LLMs and RAG
 
-<!-- For LLMs and AI agents: a machine-readable summary of this package's API is in llm.txt (https://github.com/bitesizedinsights/document-to-markdown-php/blob/master/llm.txt) -->
+<!-- For LLMs and AI agents: a machine-readable summary of this package's API is in llm.txt (https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php/blob/master/llm.txt) -->
 
 Convert PDF, Word, PowerPoint, Excel, HTML and image files to Markdown in PHP with the [Document to Markdown Apify Actor](https://apify.com/bite-sized-insights/document-to-markdown). Pass a list of document links and get typed results with clean Markdown, per-page text, tables as rows of cells and optional page-referenced chunks for RAG.
 
-[![Packagist Version](https://img.shields.io/packagist/v/bitesizedinsights/document-to-markdown.svg)](https://packagist.org/packages/bitesizedinsights/document-to-markdown)
-[![Tests](https://github.com/bitesizedinsights/document-to-markdown-php/actions/workflows/tests.yml/badge.svg)](https://github.com/bitesizedinsights/document-to-markdown-php/actions/workflows/tests.yml)
+[![Packagist Version](https://img.shields.io/packagist/v/bitesizedinsights/pdf-docx-xlsx-to-markdown.svg)](https://packagist.org/packages/bitesizedinsights/pdf-docx-xlsx-to-markdown)
+[![Tests](https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php/actions/workflows/tests.yml/badge.svg)](https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PHP](https://img.shields.io/badge/php-%5E8.3-777bb4.svg)](composer.json)
 
 ## Install the Document to Markdown PHP Package
 
 ```bash
-composer require bitesizedinsights/document-to-markdown
+composer require bitesizedinsights/pdf-docx-xlsx-to-markdown
 ```
 
 You need an Apify account and API token. [Sign up on Apify](https://console.apify.com/sign-up) (a free monthly credit is included) and copy your token from [Settings, API and integrations](https://console.apify.com/settings/integrations).

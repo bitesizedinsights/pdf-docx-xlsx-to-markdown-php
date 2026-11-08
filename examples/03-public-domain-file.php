@@ -15,7 +15,7 @@ $localFile = sys_get_temp_dir().'/document-to-markdown-example-'.md5($sourceUrl)
 
 if (! is_file($localFile) || filesize($localFile) === 0) {
     $context = stream_context_create([
-        'http' => ['timeout' => 60, 'user_agent' => 'document-to-markdown-php-example'],
+        'http' => ['timeout' => 60, 'user_agent' => 'pdf-docx-xlsx-to-markdown-php-example'],
     ]);
     $data = file_get_contents($sourceUrl, false, $context);
 

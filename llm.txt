@@ -1,11 +1,11 @@
-# Document to Markdown PHP
+# PDF, DOCX and XLSX to Markdown PHP
 
 > PHP client that converts PDF, Word, PowerPoint, Excel, HTML and image documents to Markdown via the Apify Actor "Document to Markdown", returning typed DTOs.
 
-Key facts: package `bitesizedinsights/document-to-markdown`, install with `composer require bitesizedinsights/document-to-markdown`, PHP ^8.3, namespace `DocumentToMarkdown`, entry class `DocumentToMarkdown\Client`, authentication with an Apify API token.
+Key facts: package `bitesizedinsights/pdf-docx-xlsx-to-markdown`, install with `composer require bitesizedinsights/pdf-docx-xlsx-to-markdown`, PHP ^8.3, namespace `DocumentToMarkdown`, entry class `DocumentToMarkdown\Client`, authentication with an Apify API token.
 
 ## Docs
-- [README](https://github.com/bitesizedinsights/document-to-markdown-php/blob/master/README.md): usage, pricing and FAQ
+- [README](https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php/blob/master/README.md): usage, pricing and FAQ
 - [Actor](https://apify.com/bite-sized-insights/document-to-markdown): the underlying Apify Actor
 
 ## API
