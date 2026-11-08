@@ -8,7 +8,7 @@ use DocumentToMarkdown\Client;
 
 $apiToken = getenv('APIFY_API_TOKEN') ?: getenv('APIFY_TOKEN') ?: 'your_apify_api_token';
 
-$client = new Client($apiToken);
+$client = (new Client)->setApifyKey($apiToken);
 
 // Tables come back as Markdown and as rows of cells, with the page they were found on
 [$document] = $client->convert(['https://arxiv.org/pdf/1706.03762'], extractTables: true, maxPagesPerDocument: 10);

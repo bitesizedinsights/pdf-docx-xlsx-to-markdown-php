@@ -8,7 +8,7 @@ use DocumentToMarkdown\Client;
 
 $apiToken = getenv('APIFY_API_TOKEN') ?: getenv('APIFY_TOKEN') ?: 'your_apify_api_token';
 
-$client = new Client($apiToken);
+$client = (new Client)->setApifyKey($apiToken);
 
 // Scanned pages and images are read with OCR (billed at the OCR page price)
 [$scan] = $client->convert(['https://example.com/scanned-contract.pdf'], ocr: true);

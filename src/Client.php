@@ -6,6 +6,7 @@ namespace DocumentToMarkdown;
 
 use DocumentToMarkdown\DTO\ConvertedDocument;
 use DocumentToMarkdown\Exception\ApiException;
+use DocumentToMarkdown\Exception\MissingApiKeyException;
 use DocumentToMarkdown\Exception\RateLimitException;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\ClientInterface;
@@ -27,10 +28,22 @@ final class Client
 
     private readonly ClientInterface $http;
 
-    public function __construct(string $apiToken, ?Config $config = null, ?ClientInterface $http = null)
+    private ?string $apiKey = null;
+
+    public function __construct(?Config $config = null, ?ClientInterface $http = null)
     {
-        $this->config = $config ?? new Config($apiToken);
+        $this->config = $config ?? new Config;
         $this->http = $http ?? new HttpClient;
+    }
+
+    /**
+     * Set the Apify API key. Without it, `APIFY_API_TOKEN` or `APIFY_TOKEN` from the environment is used.
+     */
+    public function setApifyKey(string $apiKey): static
+    {
+        $this->apiKey = $apiKey;
+
+        return $this;
     }
 
     /**
@@ -179,6 +192,20 @@ final class Client
     }
 
     /**
+     * @throws MissingApiKeyException
+     */
+    private function resolveApiKey(): string
+    {
+        $key = $this->apiKey ?: (getenv('APIFY_API_TOKEN') ?: getenv('APIFY_TOKEN'));
+
+        if (! is_string($key) || $key === '') {
+            throw new MissingApiKeyException;
+        }
+
+        return $key;
+    }
+
+    /**
      * @param  array<string, mixed>  $options
      * @return array<mixed>
      *
@@ -188,7 +215,7 @@ final class Client
     private function request(string $method, string $path, array $options = []): array
     {
         $options['headers'] = [
-            'Authorization' => 'Bearer '.$this->config->apiToken,
+            'Authorization' => 'Bearer '.$this->resolveApiKey(),
             'Accept' => 'application/json',
         ];
         $options['timeout'] = $this->config->requestTimeout;

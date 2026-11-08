@@ -24,7 +24,7 @@ use DocumentToMarkdown\Client;
 
 $apiToken = getenv('APIFY_API_TOKEN') ?: getenv('APIFY_TOKEN') ?: 'your_apify_api_token';
 
-$client = new Client($apiToken);
+$client = (new Client())->setApifyKey($apiToken);
 
 [$document] = $client->convert(['https://arxiv.org/pdf/1706.03762'], chunkSize: 512);
 
@@ -34,6 +34,8 @@ if ($document->isFailed()) {
 
 echo $document->markdown;
 ```
+
+The API key is set with `setApifyKey()`. If you skip it, the client reads `APIFY_API_TOKEN` or `APIFY_TOKEN` from the environment and throws `MissingApiKeyException` on the first API call when neither is set.
 
 ## Sample Output: Markdown, Pages, Tables and Chunks
 
@@ -148,17 +150,17 @@ Helpers: `isSuccessful()`, `isPartial()`, `isFailed()`, `getFormat()`, `getError
 use DocumentToMarkdown\Client;
 use DocumentToMarkdown\Config;
 
-$client = new Client($apiToken, new Config(
-    apiToken: $apiToken,
+$client = (new Client(new Config(
     timeout: 900,        // seconds to wait for the run, default 600
     requestTimeout: 60,  // seconds per HTTP request, default 90
-));
+)))->setApifyKey($apiToken);
 ```
 
-`Config` also takes `actorId` (default `bite-sized-insights/document-to-markdown`) and `baseUrl`. The third `Client` argument accepts any Guzzle `ClientInterface`.
+`Config` also takes `actorId` (default `bite-sized-insights/document-to-markdown`) and `baseUrl`. The second `Client` argument accepts any Guzzle `ClientInterface`.
 
 ## Error Handling for Document Conversion in PHP
 
+- `MissingApiKeyException` (extends `ApiException`): no key via `setApifyKey()` and neither `APIFY_API_TOKEN` nor `APIFY_TOKEN` is set.
 - `RateLimitException` (extends `ApiException`): HTTP 429, with `retryAfter` in seconds.
 - `ApiException`: failed requests, malformed responses, runs that end as `FAILED`, `ABORTED` or `TIMED-OUT`, runs that exceed `timeout`, and dataset items that cannot be mapped (the message names the item index).
 

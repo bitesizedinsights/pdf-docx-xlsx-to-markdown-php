@@ -8,7 +8,7 @@ use DocumentToMarkdown\Client;
 
 $apiToken = getenv('APIFY_API_TOKEN') ?: getenv('APIFY_TOKEN') ?: 'your_apify_api_token';
 
-$client = new Client($apiToken);
+$client = (new Client)->setApifyKey($apiToken);
 
 // Split each document into chunks of about 512 tokens, ready for embeddings
 [$document] = $client->convert(['https://arxiv.org/pdf/1706.03762'], chunkSize: 512, maxPagesPerDocument: 5);
