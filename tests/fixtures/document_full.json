@@ -1,0 +1,34 @@
+{
+    "url": "https://example.com/report.pdf",
+    "status": "success",
+    "format": "pdf",
+    "title": "Quarterly Report",
+    "total_pages": 12,
+    "pages_converted": 2,
+    "ocr_pages": 1,
+    "truncated": true,
+    "markdown": "# Quarterly Report\n\nRevenue grew by twelve percent...",
+    "pages": [
+        {"page": 1, "text": "# Quarterly Report\n\nRevenue grew by twelve percent...", "ocr": false, "method": "fast"},
+        {"page": 2, "text": "| Region | Revenue |\n|---|---|\n| EMEA | 4.1M |", "ocr": true, "method": "ocr"}
+    ],
+    "tables": [
+        {
+            "index": 0,
+            "page": 3,
+            "markdown": "| Region | Revenue |\n|---|---|\n| EMEA | 4.1M |",
+            "rows": [["Region", "Revenue"], ["EMEA", "4.1M"]]
+        }
+    ],
+    "chunks": [
+        {
+            "index": 0,
+            "text": "# Quarterly Report\n\nRevenue grew...",
+            "pages": [1, 2],
+            "heading": "Quarterly Report",
+            "tokens": 480
+        }
+    ],
+    "error_code": null,
+    "error": null
+}

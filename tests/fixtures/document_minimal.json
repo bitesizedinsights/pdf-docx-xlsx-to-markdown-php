@@ -1,0 +1,10 @@
+{
+    "url": "https://example.com/notes.docx",
+    "status": "success",
+    "pages_converted": 1,
+    "ocr_pages": 0,
+    "truncated": false,
+    "pages": [{"page": 1, "text": "Meeting notes", "ocr": false}],
+    "tables": [],
+    "chunks": []
+}

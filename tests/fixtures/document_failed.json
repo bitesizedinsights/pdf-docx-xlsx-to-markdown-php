@@ -1,0 +1,16 @@
+{
+    "url": "https://example.com/notes.txt",
+    "status": "failed",
+    "format": null,
+    "title": null,
+    "total_pages": null,
+    "pages_converted": 0,
+    "ocr_pages": 0,
+    "truncated": false,
+    "markdown": null,
+    "pages": [],
+    "tables": [],
+    "chunks": [],
+    "error_code": "unsupported_format",
+    "error": "Unsupported document type. Supported: PDF, DOCX, PPTX, XLSX, HTML and images."
+}
