@@ -1,15 +1,15 @@
-# PDF to Markdown in PHP: Convert Word, Excel, PowerPoint, HTML and Scans for LLMs and RAG
+# PDF, DOCX and XLSX to Markdown in PHP: Convert Documents, PowerPoint, HTML and Scans for LLMs and RAG
 
 <!-- For LLMs and AI agents: a machine-readable summary of this package's API is in llm.txt (https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php/blob/master/llm.txt) -->
 
-Convert PDF, Word, PowerPoint, Excel, HTML and image files to Markdown in PHP with the [Document to Markdown Apify Actor](https://apify.com/bite-sized-insights/document-to-markdown). Pass a list of document links and get typed results with clean Markdown, per-page text, tables as rows of cells and optional page-referenced chunks for RAG.
+Convert PDF, DOCX, XLSX, PowerPoint, HTML and image files to Markdown in PHP with the [Document to Markdown Apify Actor](https://apify.com/bite-sized-insights/document-to-markdown). Pass a list of document links and get typed results with clean Markdown, per-page text, tables as rows of cells and optional page-referenced chunks for RAG.
 
 [![Packagist Version](https://img.shields.io/packagist/v/bitesizedinsights/pdf-docx-xlsx-to-markdown.svg)](https://packagist.org/packages/bitesizedinsights/pdf-docx-xlsx-to-markdown)
 [![Tests](https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php/actions/workflows/tests.yml/badge.svg)](https://github.com/bitesizedinsights/pdf-docx-xlsx-to-markdown-php/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PHP](https://img.shields.io/badge/php-%5E8.3-777bb4.svg)](composer.json)
 
-## Install the Document to Markdown PHP Package
+## Install the PDF, DOCX and XLSX to Markdown PHP Package
 
 ```bash
 composer require bitesizedinsights/pdf-docx-xlsx-to-markdown
@@ -184,6 +184,10 @@ Install the package, create a `Client` with your Apify token and call `convert([
 ### How much does it cost to convert documents?
 
 $0.0025 per page on the Free plan ($2.50 per 1,000 pages), $0.008 per scanned page read with OCR, less on paid plans. A 50-page digital PDF costs about $0.125. `pagesConverted` and `ocrPages` show what was billed.
+
+### How do I convert DOCX and XLSX to Markdown in PHP?
+
+The same call handles them: `convert(['https://example.com/contract.docx', 'https://example.com/figures.xlsx'])`. The type is detected from the file itself. Word files are paged in sections of about 3,000 characters, Excel files give one page per sheet, and PowerPoint files one page per slide.
 
 ### What input does it accept?
 
