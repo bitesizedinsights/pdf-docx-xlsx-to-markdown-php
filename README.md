@@ -158,6 +158,20 @@ $client = (new Client(new Config(
 
 `Config` also takes `actorId` (default `bite-sized-insights/document-to-markdown`) and `baseUrl`. The second `Client` argument accepts any Guzzle `ClientInterface`.
 
+## Retries and Backoff
+
+Failed requests are retried automatically, by default up to 3 times with exponential backoff (1 s, 2 s, 4 s, each with 50 to 100 percent jitter, at most 30 s):
+
+- **Rate limits (429):** retried after at least the `Retry-After` time (seconds or HTTP date; backoff if the header is missing). If the server asks for more than `retryMaxDelay`, a `RateLimitException` is thrown right away.
+- **Server errors (5xx) and connection failures:** retried for polling and reading results.
+- **Starting a run:** only retried after a 429 or a failed connection. After a 5xx or a timeout the run may already exist, and a repeat would be billed twice, so the error is thrown instead.
+- **Other errors (4xx):** never retried.
+
+```php
+$client = (new Client(new Config(maxRetries: 5, retryBaseDelay: 2.0, retryMaxDelay: 60.0)))->setApifyKey($apiToken);
+// new Config(maxRetries: 0) turns retrying off
+```
+
 ## Error Handling for Document Conversion in PHP
 
 - `MissingApiKeyException` (extends `ApiException`): no key via `setApifyKey()` and neither `APIFY_API_TOKEN` nor `APIFY_TOKEN` is set.

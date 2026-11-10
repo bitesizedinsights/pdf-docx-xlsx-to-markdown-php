@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DocumentToMarkdown;
 
+use Closure;
 use DocumentToMarkdown\DTO\ConvertedDocument;
 use DocumentToMarkdown\Exception\ApiException;
 use DocumentToMarkdown\Exception\MissingApiKeyException;
@@ -11,6 +12,7 @@ use DocumentToMarkdown\Exception\RateLimitException;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use JsonException;
@@ -30,10 +32,19 @@ final class Client
 
     private ?string $apiKey = null;
 
-    public function __construct(?Config $config = null, ?ClientInterface $http = null)
+    /** @var Closure(float): void */
+    private readonly Closure $sleeper;
+
+    /**
+     * @param  (Closure(float): void)|null  $sleeper  Waits the given seconds between retries; replaced in tests.
+     */
+    public function __construct(?Config $config = null, ?ClientInterface $http = null, ?Closure $sleeper = null)
     {
         $this->config = $config ?? new Config;
         $this->http = $http ?? new HttpClient;
+        $this->sleeper = $sleeper ?? static function (float $seconds): void {
+            usleep((int) round($seconds * 1_000_000));
+        };
     }
 
     /**
@@ -206,6 +217,10 @@ final class Client
     }
 
     /**
+     * Sends a request and retries what is safe to repeat: rate limits (429, the request was not processed), server
+     * errors (5xx) and connection failures. Starting a run (POST) is only repeated after a 429 or a failed
+     * connection, because after a 5xx or a timeout the run may already exist and a repeat would bill it twice.
+     *
      * @param  array<string, mixed>  $options
      * @return array<mixed>
      *
@@ -220,22 +235,81 @@ final class Client
         ];
         $options['timeout'] = $this->config->requestTimeout;
 
-        try {
-            $response = $this->http->request($method, rtrim($this->config->baseUrl, '/').$path, $options);
-            $decoded = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (BadResponseException $e) {
-            $this->handleBadResponse($e);
-        } catch (JsonException $e) {
-            throw new ApiException('Invalid API response: malformed JSON', 0, $e);
-        } catch (GuzzleException $e) {
-            throw new ApiException('API request failed: '.$e->getMessage(), 0, $e);
+        for ($attempt = 0; ; $attempt++) {
+            try {
+                $response = $this->http->request($method, rtrim($this->config->baseUrl, '/').$path, $options);
+                $decoded = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+            } catch (BadResponseException $e) {
+                $status = $e->getResponse()->getStatusCode();
+                $retryable = $status === 429 || ($status >= 500 && $method !== 'POST');
+                $delay = $retryable && $attempt < $this->config->maxRetries
+                    ? $this->retryDelay($attempt, $status === 429 ? $this->parseRetryAfter($e) : null)
+                    : null;
+
+                if ($delay === null) {
+                    $this->handleBadResponse($e);
+                }
+
+                ($this->sleeper)($delay);
+
+                continue;
+            } catch (JsonException $e) {
+                throw new ApiException('Invalid API response: malformed JSON', 0, $e);
+            } catch (GuzzleException $e) {
+                // A failed connection never reached the server, so it is safe to repeat even for POST.
+                $retryable = $e instanceof ConnectException || $method !== 'POST';
+
+                if ($retryable && $attempt < $this->config->maxRetries) {
+                    ($this->sleeper)($this->retryDelay($attempt, null) ?? 0.0);
+
+                    continue;
+                }
+
+                throw new ApiException('API request failed: '.$e->getMessage(), 0, $e);
+            }
+
+            if (! is_array($decoded)) {
+                throw new ApiException('Invalid API response: unexpected JSON');
+            }
+
+            return $decoded;
+        }
+    }
+
+    /**
+     * Seconds to wait before the next retry: exponential from the base delay with 50 to 100 percent jitter, at least
+     * the server's `Retry-After`. Null when the server asks for a longer wait than the configured maximum.
+     */
+    private function retryDelay(int $attempt, ?int $retryAfter): ?float
+    {
+        if ($retryAfter !== null && $retryAfter > $this->config->retryMaxDelay) {
+            return null;
         }
 
-        if (! is_array($decoded)) {
-            throw new ApiException('Invalid API response: unexpected JSON');
+        $backoff = min($this->config->retryMaxDelay, $this->config->retryBaseDelay * (2 ** $attempt));
+        $jittered = $backoff * (random_int(500, 1000) / 1000);
+
+        return max($jittered, (float) ($retryAfter ?? 0));
+    }
+
+    /**
+     * `Retry-After` in seconds, from either the numeric or the HTTP-date form; null when missing or invalid.
+     */
+    private function parseRetryAfter(BadResponseException $e): ?int
+    {
+        $value = trim($e->getResponse()->getHeaderLine('Retry-After'));
+
+        if ($value === '') {
+            return null;
         }
 
-        return $decoded;
+        if (ctype_digit($value)) {
+            return (int) $value;
+        }
+
+        $timestamp = strtotime($value);
+
+        return $timestamp === false ? null : max(0, $timestamp - time());
     }
 
     private function handleBadResponse(BadResponseException $e): never
@@ -243,9 +317,7 @@ final class Client
         $response = $e->getResponse();
 
         if ($response->getStatusCode() === 429) {
-            $retryAfter = (int) ($response->getHeaderLine('Retry-After') ?: 60);
-
-            throw new RateLimitException('Rate limit exceeded', $retryAfter);
+            throw new RateLimitException('Rate limit exceeded', $this->parseRetryAfter($e) ?? 60);
         }
 
         throw new ApiException(
