@@ -6,8 +6,9 @@ namespace DocumentToMarkdown\DTO;
 
 use DocumentToMarkdown\Support\Value;
 use InvalidArgumentException;
+use JsonSerializable;
 
-final readonly class Chunk
+final readonly class Chunk implements JsonSerializable
 {
     /** @param  list<int>  $pages  Source pages of the chunk. */
     public function __construct(
@@ -37,5 +38,27 @@ final readonly class Chunk
             heading: Value::nullableString($data, 'heading'),
             tokens: Value::int($data, 'tokens'),
         );
+    }
+
+    /**
+     * The result in the Actor's field names; {@see self::fromArray()} restores it.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'index' => $this->index,
+            'text' => $this->text,
+            'pages' => $this->pages,
+            'heading' => $this->heading,
+            'tokens' => $this->tokens,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 }

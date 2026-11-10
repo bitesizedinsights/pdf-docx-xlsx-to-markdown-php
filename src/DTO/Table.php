@@ -6,8 +6,9 @@ namespace DocumentToMarkdown\DTO;
 
 use DocumentToMarkdown\Support\Value;
 use InvalidArgumentException;
+use JsonSerializable;
 
-final readonly class Table
+final readonly class Table implements JsonSerializable
 {
     /** @param  list<list<string>>  $rows */
     public function __construct(
@@ -44,6 +45,27 @@ final readonly class Table
             markdown: Value::string($data, 'markdown'),
             rows: $rows,
         );
+    }
+
+    /**
+     * The result in the Actor's field names; {@see self::fromArray()} restores it.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'index' => $this->index,
+            'page' => $this->page,
+            'markdown' => $this->markdown,
+            'rows' => $this->rows,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 
     public function getRowCount(): int

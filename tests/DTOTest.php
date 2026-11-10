@@ -121,3 +121,23 @@ test('invalid data throws InvalidArgumentException', function (array $override, 
     'chunk pages not ints' => [['chunks' => [['index' => 0, 'text' => '', 'pages' => ['a'], 'heading' => null,
         'tokens' => 1]]], "Field 'pages' must contain integers"],
 ]);
+
+test('document round trips through toArray and json', function (string $fixture) {
+    $document = ConvertedDocument::fromArray(loadFixture($fixture));
+
+    $viaArray = ConvertedDocument::fromArray($document->toArray());
+    $viaJson = ConvertedDocument::fromArray(json_decode(json_encode($document, JSON_THROW_ON_ERROR), true));
+
+    expect($viaArray)->toEqual($document)
+        ->and($viaJson)->toEqual($document);
+})->with(['document_full', 'document_minimal', 'document_failed']);
+
+test('toArray uses the Actor field names', function () {
+    $array = ConvertedDocument::fromArray(loadFixture('document_full'))->toArray();
+
+    expect($array)->toHaveKeys(['total_pages', 'pages_converted', 'ocr_pages', 'error_code'])
+        ->and($array['status'])->toBe('success')
+        ->and($array['pages'][0])->toHaveKeys(['page', 'text', 'ocr', 'method'])
+        ->and($array['tables'][0])->toHaveKeys(['index', 'page', 'markdown', 'rows'])
+        ->and($array['chunks'][0])->toHaveKeys(['index', 'text', 'pages', 'heading', 'tokens']);
+});

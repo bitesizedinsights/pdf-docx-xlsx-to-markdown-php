@@ -9,8 +9,9 @@ use DocumentToMarkdown\DocumentStatus;
 use DocumentToMarkdown\ErrorCode;
 use DocumentToMarkdown\Support\Value;
 use InvalidArgumentException;
+use JsonSerializable;
 
-final readonly class ConvertedDocument
+final readonly class ConvertedDocument implements JsonSerializable
 {
     /**
      * @param  list<Page>  $pages
@@ -61,6 +62,37 @@ final readonly class ConvertedDocument
             errorCode: Value::nullableString($data, 'error_code'),
             error: Value::nullableString($data, 'error'),
         );
+    }
+
+    /**
+     * The result in the Actor's field names; {@see self::fromArray()} restores it.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'url' => $this->url,
+            'status' => $this->status->value,
+            'format' => $this->format,
+            'title' => $this->title,
+            'total_pages' => $this->totalPages,
+            'pages_converted' => $this->pagesConverted,
+            'ocr_pages' => $this->ocrPages,
+            'truncated' => $this->truncated,
+            'markdown' => $this->markdown,
+            'pages' => array_map(static fn (Page $page): array => $page->toArray(), $this->pages),
+            'tables' => array_map(static fn (Table $table): array => $table->toArray(), $this->tables),
+            'chunks' => array_map(static fn (Chunk $chunk): array => $chunk->toArray(), $this->chunks),
+            'error_code' => $this->errorCode,
+            'error' => $this->error,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 
     /**

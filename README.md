@@ -135,6 +135,15 @@ Helpers: `isSuccessful()`, `isPartial()`, `isFailed()`, `getFormat()`, `getError
 
 </details>
 
+## Store and Restore Results
+
+`ConvertedDocument`, `Page`, `Table` and `Chunk` implement `JsonSerializable` and have `toArray()`. The array uses the Actor's field names (`pages_converted`, `ocr_pages`, `total_pages`, `error_code`, ...), so `fromArray()` restores an equal object:
+
+```php
+$json = json_encode($document);                                      // database column, cache, queue payload
+$restored = ConvertedDocument::fromArray(json_decode($json, true));  // same data again
+```
+
 ## Status, Format, Page Method and Error Code Enums
 
 - `DocumentStatus`: `Success`, `Partial` (time budget ran out, pages so far are returned), `Failed`
