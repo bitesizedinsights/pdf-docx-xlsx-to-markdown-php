@@ -69,6 +69,7 @@ final class Client
      * @param  int  $maxPagesPerDocument  Convert only the first N pages of each document, 1 to 200.
      * @return list<ConvertedDocument>
      *
+     * @throws InvalidArgumentException when an argument is outside the Actor's input schema limits
      * @throws ApiException
      * @throws RateLimitException
      */
@@ -80,6 +81,8 @@ final class Client
         int $chunkSize = 0,
         int $maxPagesPerDocument = 100,
     ): array {
+        $this->validateInput($urls, $chunkSize, $maxPagesPerDocument);
+
         $input = [
             'urls' => $urls,
             'ocr' => $ocr,
@@ -93,6 +96,40 @@ final class Client
         $run = $this->awaitRun($run);
 
         return $this->fetchDocuments($this->datasetId($run));
+    }
+
+    /**
+     * @param  array<mixed>  $urls
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateInput(array $urls, int $chunkSize, int $maxPagesPerDocument): void
+    {
+        $count = count($urls);
+
+        if ($count < 1 || $count > 100) {
+            throw new InvalidArgumentException("urls must contain 1 to 100 links, got {$count}.");
+        }
+
+        foreach ($urls as $index => $url) {
+            if (! is_string($url)) {
+                throw new InvalidArgumentException("urls[{$index}] must be a string.");
+            }
+
+            if (strlen($url) > 2048) {
+                throw new InvalidArgumentException("urls[{$index}] must be at most 2048 characters.");
+            }
+        }
+
+        if ($chunkSize !== 0 && ($chunkSize < 100 || $chunkSize > 4000)) {
+            throw new InvalidArgumentException("chunkSize must be 0 (no chunks) or 100 to 4000, got {$chunkSize}.");
+        }
+
+        if ($maxPagesPerDocument < 1 || $maxPagesPerDocument > 200) {
+            throw new InvalidArgumentException(
+                "maxPagesPerDocument must be 1 to 200, got {$maxPagesPerDocument}.",
+            );
+        }
     }
 
     /**

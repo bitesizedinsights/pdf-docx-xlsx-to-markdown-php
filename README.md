@@ -174,6 +174,7 @@ $client = (new Client(new Config(maxRetries: 5, retryBaseDelay: 2.0, retryMaxDel
 
 ## Error Handling for Document Conversion in PHP
 
+- `InvalidArgumentException`: thrown before any request when `urls` has fewer than 1 or more than 100 entries, a URL is not a string or is longer than 2048 characters, `chunkSize` is not 0 or 100 to 4000, or `maxPagesPerDocument` is outside 1 to 200.
 - `MissingApiKeyException` (extends `ApiException`): no key via `setApifyKey()` and neither `APIFY_API_TOKEN` nor `APIFY_TOKEN` is set.
 - `RateLimitException` (extends `ApiException`): HTTP 429, with `retryAfter` in seconds.
 - `ApiException`: failed requests, malformed responses, runs that end as `FAILED`, `ABORTED` or `TIMED-OUT`, runs that exceed `timeout`, and dataset items that cannot be mapped (the message names the item index).

@@ -10,6 +10,7 @@ All notable changes to this project are documented in this file. The format is b
 
 ### Added
 
+- Client-side validation in `Client::convert()`: `InvalidArgumentException` before any request for `urls` outside 1 to 100 entries, non-string or over-2048-character URLs, `chunkSize` not 0 or 100 to 4000 and `maxPagesPerDocument` outside 1 to 200.
 - Automatic retrying with exponential backoff and jitter (`Config::$maxRetries`, `$retryBaseDelay`, `$retryMaxDelay`): rate limits honour `Retry-After` (seconds or HTTP date, backoff when missing), 5xx and connection failures are retried, and starting a run is not repeated after a 5xx or timeout.
 - `Client::setApifyKey()` and `MissingApiKeyException`, thrown on the first API call when no key is available.
 

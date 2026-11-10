@@ -385,3 +385,32 @@ test('4xx other than 429 is never retried', function () {
     expect(fn () => $client->convert(['https://example.com/a.pdf']))->toThrow(ApiException::class, 'status 401')
         ->and($history)->toHaveCount(1);
 });
+
+it('rejects input outside the Actor schema limits before any request', function (array $args, string $message): void {
+    $history = [];
+    $client = makeClient([], $history);
+
+    expect(fn () => $client->convert(...$args))->toThrow(InvalidArgumentException::class, $message);
+    expect($history)->toBeEmpty();
+})->with([
+    'no urls' => [[[]], 'urls must contain 1 to 100 links, got 0'],
+    'too many urls' => [[array_fill(0, 101, 'https://a.test/x.pdf')], 'got 101'],
+    'non-string url' => [[['https://a.test/x.pdf', 5]], 'urls[1] must be a string'],
+    'url too long' => [[['https://a.test/'.str_repeat('a', 2048)]], 'urls[0] must be at most 2048'],
+    'chunk too small' => [[['https://a.test/x.pdf'], 'chunkSize' => 50], 'chunkSize must be 0'],
+    'chunk too large' => [[['https://a.test/x.pdf'], 'chunkSize' => 4001], 'chunkSize must be 0'],
+    'pages zero' => [[['https://a.test/x.pdf'], 'maxPagesPerDocument' => 0], 'maxPagesPerDocument must be 1 to 200'],
+    'pages too large' => [
+        [['https://a.test/x.pdf'], 'maxPagesPerDocument' => 201],
+        'maxPagesPerDocument must be 1 to 200',
+    ],
+]);
+
+it('accepts the boundary values of the Actor schema', function (): void {
+    $history = [];
+    $client = makeClient([runResponse(), jsonResponse(200, [])], $history);
+
+    $client->convert(array_fill(0, 100, 'https://a.test/x.pdf'), chunkSize: 4000, maxPagesPerDocument: 200);
+
+    expect($history)->toHaveCount(2);
+});
